@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 
 import { BrowserRouter } from "react-router-dom";
 import { theme } from "./theme";
-import "./styles/tailwind.css";
+
 const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root") as HTMLElement;

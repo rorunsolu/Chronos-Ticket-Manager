@@ -1,6 +1,6 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
-  fontFamily: "serif",
+  //fontFamily: "serif",
   // ... other theme override properties
 });

@@ -28,3 +28,4 @@ schema.sql
 .env.production
 .env.local
 .env.*.local
+migrate.ts

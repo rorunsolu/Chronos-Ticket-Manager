@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/supabaseClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import type { User } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
+import { useState } from "react";
 
 type ProfileData = {
   name: string;
@@ -12,70 +12,89 @@ type ProfileData = {
   role: string;
 };
 
-const AccountPage = ({ user }: { user: User }) => {
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<ProfileData>({
+const AccountPage = ({ session }: { session: Session }) => {
+  // cant call the variable "profile" because RQ already uses profile to represent the data returned from it's query
+  const [formData, setFormData] = useState<ProfileData>({
     name: "",
-    email: user.email ?? "",
+    email: "",
     role: "",
   });
 
-  useEffect(() => {
-    let ignore = false;
+  const queryClient = useQueryClient();
 
-    async function getProfile() {
-      setLoading(true);
+  // 1. React Query gets the data from DB
+  // 2. Use RQ data variable to display data in form fields
+  // 3. Typing into form field changes the formData state variable
+  // 4. Submtting form calls RQ mutate to use updateProfile function
+  // 5. updateProfile function makes a request to backend to update the DB with the formData
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("email, name, role")
-        .eq("id", user.id)
-        .single();
+  const getProfile = async () => {
+    const response = await fetch("/api/profile", {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
 
-      if (!ignore) {
-        if (error) {
-          console.warn(error);
-        } else if (data) {
-          setProfile({
-            name: data.name ?? "",
-            email: data.email ?? user.email ?? "",
-            role: data.role ?? "",
-          });
-        }
-      }
-
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error("Failed to fetch profile");
     }
 
-    void getProfile();
+    return await response.json();
+  };
 
-    return () => {
-      ignore = true;
-    };
-  }, [user.id, user.email]);
+  const updateProfile = async (data: ProfileData) => {
+    // the data parameter is the formData state variable
+    const response = await fetch("/api/profile", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        //! NEED TO DEAL WITH THE ABOVE
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  async function updateProfile(event: React.FormEvent) {
-    event.preventDefault();
-    setLoading(true);
+    return response.json();
+  };
 
-    const updates = {
-      id: user.id,
-      name: profile.name,
-      updated_at: new Date(),
-    };
+  // https://tanstack.com/query/latest/docs/framework/react/guides/mutations
+  // https://tanstack.com/query/latest/docs/framework/react/guides/invalidations-from-mutations
 
-    const { error } = await supabase.from("users").upsert(updates);
+  const mutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error) => {
+      console.error("Error updating profile:", error);
+    },
+  });
 
-    if (error) {
-      alert(error.message);
-    }
+  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
 
-    setLoading(false);
+  const {
+    data: profile,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
+  });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error loading profile</p>;
   }
 
   return (
     <div className="flex items-center justify-center p-10">
-      <form onSubmit={updateProfile}>
+      <form onSubmit={onSubmit}>
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           <div>
             <h2 className="text-balance font-semibold text-foreground dark:text-foreground">
@@ -99,7 +118,10 @@ const AccountPage = ({ user }: { user: User }) => {
                     type="text"
                     value={profile.name}
                     onChange={(e) =>
-                      setProfile((prev) => ({ ...prev, name: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
                     }
                   />
                 </Field>
@@ -116,7 +138,10 @@ const AccountPage = ({ user }: { user: User }) => {
                     type="email"
                     value={profile.email}
                     onChange={(e) =>
-                      setProfile((prev) => ({ ...prev, email: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
                     }
                   />
                 </Field>
@@ -149,16 +174,16 @@ const AccountPage = ({ user }: { user: User }) => {
             className="whitespace-nowrap"
             type="button"
             variant="outline"
-            disabled={loading}
+            //disabled={mutation.isLoading}
           >
             Go back
           </Button>
           <Button
             className="whitespace-nowrap"
             type="submit"
-            disabled={loading}
+            //disabled={loading}
           >
-            Save settings
+            Save changes
           </Button>
         </div>
       </form>

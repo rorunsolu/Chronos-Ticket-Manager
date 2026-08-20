@@ -16,7 +16,6 @@ import { Navigate } from "react-router-dom";
 
 const App = (): FunctionComponent => {
   const { session } = UserAuth();
-  const user = session?.user ?? null;
 
   return (
     <ThemeProvider
@@ -50,7 +49,11 @@ const App = (): FunctionComponent => {
           <Route
             path="/account"
             element={
-              user ? <AccountPage user={user} /> : <Navigate to="/landing" />
+              session ? (
+                <AccountPage session={session} />
+              ) : (
+                <Navigate to="/landing" />
+              )
             }
           />
 

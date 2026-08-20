@@ -36,12 +36,7 @@ create table if not exists public.users (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
-alter table public.users enable row level security;
-drop policy if exists "Users can view own profile" on public.users;
-create policy "Users can view own profile" on public.users for
 select using (auth.uid() = id);
-drop policy if exists "Users can update own profile" on public.users;
-create policy "Users can update own profile" on public.users for
 update using (auth.uid() = id);
 create or replace function public.handle_new_user() returns trigger as $$ begin
 insert into public.users (id, email, name)

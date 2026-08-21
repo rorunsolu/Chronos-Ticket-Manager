@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
+import { UserAuth } from "@/context/AuthContext";
 import { ModeToggle } from "@/components/themeToggle";
-import { supabase } from "@/supabaseClient";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Breadcrumb,
@@ -32,7 +32,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +63,23 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-// Base nav item - used by simple sidebars
+/**
+ * TODO:
+ * - [ ] Replace hardcoded user data with the authenticated user from UserAuth()
+ * - [ ] Hide the shell on public/auth pages and only show it for protected routes
+ * - [ ] Replace href-based navigation with router navigation using useNavigate() or NavLink
+ * - [ ] Use the shared auth signOut method instead of calling Supabase directly from the shell
+ * - [ ] Guard the shell while auth is still loading to avoid flash-of-unauthenticated UI
+ * - [ ] Make the active nav item dynamic based on the current route
+ * - [ ] Remove starter branding/workspace placeholders and use the real app branding
+ * - [ ] Ensure any data fetches triggered by the shell include the Bearer token from the authenticated session
+ * - [ ] Replace the static breadcrumb with route-based breadcrumb logic
+ * - [ ] Keep the footer/support items aligned with real app actions instead of demo placeholders
+ */
+
+// TODO: Replace hardcoded user data with the authenticated user from UserAuth()
+// FIXME: GDGD hg
+
 type NavItem = {
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -72,7 +87,7 @@ type NavItem = {
   isActive?: boolean;
   // Optional children for submenus (Sidebar3+)
   children?: NavItem[];
-};
+}; // FIXME
 
 // Nav group with optional collapsible state
 type NavGroup = {
@@ -273,11 +288,11 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
 
 const NavUser = ({ user }: { user: UserData }) => {
   const navigate = useNavigate();
-  const [, setUserAccount] = useState(null);
+  const { signOut } = UserAuth();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUserAccount(null);
+    signOut();
+    navigate("/signin");
   };
 
   return (

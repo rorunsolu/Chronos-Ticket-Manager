@@ -4,7 +4,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import AuthContextVer2 from "@/context/AuthContextVer2";
+import AuthContext from "@/context/AuthContext.tsx";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import "@/index.css";
 import "@/App.css";
 
@@ -17,9 +19,11 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
-          <AuthContextVer2>
-            <App />
-          </AuthContextVer2>
+          <AuthContext>
+            <TooltipProvider>
+              <App />
+            </TooltipProvider>
+          </AuthContext>
           <ReactQueryDevtools initialIsOpen={true} />
         </QueryClientProvider>
       </BrowserRouter>

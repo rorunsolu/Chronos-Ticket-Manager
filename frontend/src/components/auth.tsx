@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { UserAuth } from "@/context/AuthContextVer2";
+import { UserAuth } from "@/context/AuthContext";
 import type { JwtPayload } from "@supabase/supabase-js";
 
 export default function Auth({ authType }: { authType: string }) {

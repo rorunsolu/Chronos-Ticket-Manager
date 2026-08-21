@@ -4,7 +4,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import type { Session } from "@supabase/supabase-js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ProfileData = {
   name: string;
@@ -64,6 +64,12 @@ const AccountPage = ({ session }: { session: Session }) => {
     mutationFn: updateProfile,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      setFormData({
+        name: profile?.name,
+        email: profile?.email,
+        role: profile?.role,
+      });
+      console.log("Profile updated successfully");
     },
     onError: (error) => {
       console.error("Error updating profile:", error);
@@ -84,12 +90,26 @@ const AccountPage = ({ session }: { session: Session }) => {
     queryFn: getProfile,
   });
 
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name ?? "",
+        email: profile.email ?? "",
+        role: profile.role ?? "",
+      });
+    }
+  }, [profile]);
+
   if (isLoading) {
     return <p>Loading...</p>;
   }
 
   if (error) {
     return <p>Error loading profile</p>;
+  }
+
+  if (!profile) {
+    return <p>Profile data could not be loaded.</p>;
   }
 
   return (
@@ -114,9 +134,9 @@ const AccountPage = ({ session }: { session: Session }) => {
                     autoComplete="given-name"
                     id="first-name"
                     name="first-name"
-                    placeholder="Emma"
+                    placeholder="First name"
                     type="text"
-                    value={profile.name}
+                    value={formData.name}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -136,7 +156,7 @@ const AccountPage = ({ session }: { session: Session }) => {
                     name="email"
                     placeholder="emma@company.com"
                     type="email"
-                    value={profile.email}
+                    value={formData.email}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -154,9 +174,9 @@ const AccountPage = ({ session }: { session: Session }) => {
                     disabled
                     id="role"
                     name="role"
-                    placeholder="Senior Manager"
+                    //placeholder="Senior Manager"
                     type="text"
-                    value={profile.role}
+                    value={formData.role}
                   />
                   <FieldDescription>
                     Roles can only be changed by system admin.

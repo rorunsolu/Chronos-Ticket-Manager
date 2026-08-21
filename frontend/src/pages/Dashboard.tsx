@@ -1,15 +1,12 @@
-import { supabase } from "@/supabaseClient";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
-  const [, setUserAccount] = useState(null);
-
+  const { signOut } = UserAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUserAccount(null);
+    signOut();
   };
 
   return (

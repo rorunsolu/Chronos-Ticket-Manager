@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { UserAuth } from "@/context/AuthContextVer2";
+import { UserAuth } from "@/context/AuthContext";
 
 const Home = () => {
   const { session } = UserAuth();
@@ -7,6 +7,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      HOMEPAGE
       <a
         className="hover:underline hover:cursor-pointer"
         onClick={() => navigate("/signin")}
@@ -35,7 +36,6 @@ const Home = () => {
           Ticket
         </a>
       )}
-
       {session && (
         <a
           className="hover:underline hover:cursor-pointer"

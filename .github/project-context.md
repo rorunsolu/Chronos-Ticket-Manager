@@ -47,3 +47,7 @@ The backend validates the token and uses the authenticated user's ID.
 - Migration SQL should be reviewed before being applied.
 - Do not modify an already-applied migration to change historical database state. Create a new migration instead.
 - When suggesting database changes, explain any important implications for existing data, foreign keys, indexes, constraints, or application code.
+
+## Important Considerations
+
+- I am using my local windows machine for development

@@ -1,7 +1,9 @@
 import express from "express";
 import { supabasePool } from "../db";
 import profileRoutes from "../routes/profileRoutes";
+import ticketRoutes from "../routes/ticketRoutes";
 import protectedRoutes from "../routes/protected";
+import ticketCommentRoutes from "../routes/ticketCommentRoutes";
 
 const app = express();
 const PORT = 8000;
@@ -24,6 +26,8 @@ app.get("/test-db", async (req, res) => {
 
 app.use("/api/profile", profileRoutes);
 app.use("/api/protected", protectedRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/tickets", ticketCommentRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

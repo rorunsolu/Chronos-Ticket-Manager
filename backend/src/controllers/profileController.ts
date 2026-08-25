@@ -4,7 +4,7 @@ import { AuthedRequest } from "../middleware/authMw";
 
 export async function getProfile(req: AuthedRequest, res: Response) {
   try {
-    const userID = req.user?.sub;
+    const userId = req.user?.sub;
 
     const result = await supabasePool.query(
       `
@@ -12,7 +12,7 @@ export async function getProfile(req: AuthedRequest, res: Response) {
       FROM users
       WHERE id = $1
       `,
-      [userID],
+      [userId],
     );
 
     res.json(result.rows[0]);
@@ -25,7 +25,7 @@ export async function getProfile(req: AuthedRequest, res: Response) {
 
 export async function updateProfile(req: AuthedRequest, res: Response) {
   try {
-    const userID = req.user?.sub;
+    const userId = req.user?.sub;
 
     const { name, role } = req.body;
 
@@ -42,13 +42,13 @@ export async function updateProfile(req: AuthedRequest, res: Response) {
 
       RETURNING *
       `,
-      [name, role, userID],
+      [name, role, userId],
     );
 
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({
-      message: "Server error",
+      message: "There was an error updating your profile",
     });
   }
 }

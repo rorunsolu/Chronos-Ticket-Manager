@@ -12,7 +12,7 @@ export const query = (text: string, params: any[]) => {
 };
 
 export const supabasePool = new Pool({
-  connectionString: process.env.VITE_SUPABASE_POSTGRESS_CONNECTION_STRING,
+  connectionString: process.env.SUPABASE_POSTGRESS_CONNECTION_STRING,
   ssl: {
     rejectUnauthorized: false,
   },

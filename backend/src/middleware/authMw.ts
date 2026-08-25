@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from "jose";
 
-const JWKS_URL = `${process.env.VITE_SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
+const JWKS_URL = `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 
 export interface AuthedRequest extends Request {
@@ -32,7 +32,7 @@ export const requireAuth = async (
 
   try {
     const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `${process.env.VITE_SUPABASE_URL}/auth/v1`,
+      issuer: `${process.env.SUPABASE_URL}/auth/v1`,
       audience: "authenticated",
     });
     req.user = payload;

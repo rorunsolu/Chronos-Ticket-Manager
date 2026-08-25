@@ -1,10 +1,16 @@
 import express from "express";
 import { supabasePool } from "../db";
+import profileRoutes from "../routes/profileRoutes";
+import protectedRoutes from "../routes/protected";
 
 const app = express();
 const PORT = 8000;
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Hello mate");
+});
 
 app.get("/test-db", async (req, res) => {
   try {
@@ -16,9 +22,8 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello mate");
-});
+app.use("/api/profile", profileRoutes);
+app.use("/api/protected", protectedRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

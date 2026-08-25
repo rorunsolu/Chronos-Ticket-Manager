@@ -1,26 +1,22 @@
 "use client";
 
 import {
-  BadgeCheck,
-  BarChart3,
   Briefcase,
   ChevronRight,
   ChevronsUpDown,
   ClipboardList,
-  Clock3,
   FileText,
   Folder,
-  Globe2,
   HelpCircle,
   LayoutDashboard,
   LogOut,
   Settings,
-  Sparkles,
-  Star,
   User,
   Users,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import * as React from "react";
+import { UserAuth } from "@/context/AuthContext";
 import { ModeToggle } from "@/components/themeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -39,6 +35,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -66,7 +63,23 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-// Base nav item - used by simple sidebars
+/**
+ * TODO:
+ * - [ ] Replace hardcoded user data with the authenticated user from UserAuth()
+ * - [ ] Hide the shell on public/auth pages and only show it for protected routes
+ * - [ ] Replace href-based navigation with router navigation using useNavigate() or NavLink
+ * - [ ] Use the shared auth signOut method instead of calling Supabase directly from the shell
+ * - [ ] Guard the shell while auth is still loading to avoid flash-of-unauthenticated UI
+ * - [ ] Make the active nav item dynamic based on the current route
+ * - [ ] Remove starter branding/workspace placeholders and use the real app branding
+ * - [ ] Ensure any data fetches triggered by the shell include the Bearer token from the authenticated session
+ * - [ ] Replace the static breadcrumb with route-based breadcrumb logic
+ * - [ ] Keep the footer/support items aligned with real app actions instead of demo placeholders
+ */
+
+// TODO: Replace hardcoded user data with the authenticated user from UserAuth()
+// FIXME: GDGD hg
+
 type NavItem = {
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -74,7 +87,7 @@ type NavItem = {
   isActive?: boolean;
   // Optional children for submenus (Sidebar3+)
   children?: NavItem[];
-};
+}; // FIXME
 
 // Nav group with optional collapsible state
 type NavGroup = {
@@ -133,11 +146,11 @@ const sidebarData: SidebarData = {
         {
           label: "Dashboard",
           icon: LayoutDashboard,
-          href: "#",
+          href: "/dashboard",
+          //! dont use href here its gonna refrsh the page, need to use usenavigate
           isActive: true,
         },
-        { label: "Tasks", icon: ClipboardList, href: "#" },
-        { label: "Roadmap", icon: BarChart3, href: "#" },
+        { label: "Tickets", icon: ClipboardList, href: "/tickets" },
       ],
     },
     {
@@ -148,40 +161,20 @@ const sidebarData: SidebarData = {
           label: "Active Projects",
           icon: Briefcase,
           href: "#",
-          children: [
-            { label: "Project Alpha", icon: FileText, href: "#" },
-            { label: "Project Beta", icon: FileText, href: "#" },
-            { label: "Project Gamma", icon: FileText, href: "#" },
-          ],
+          children: [{ label: "Project Alpha", icon: FileText, href: "#" }],
         },
         {
           label: "Archived",
           icon: Folder,
           href: "#",
-          children: [
-            { label: "2024 Archive", icon: FileText, href: "#" },
-            { label: "2023 Archive", icon: FileText, href: "#" },
-          ],
+          children: [{ label: "2024 Archive", icon: FileText, href: "#" }],
         },
       ],
     },
     {
       title: "Team",
       defaultOpen: false,
-      items: [
-        { label: "Members", icon: Users, href: "#" },
-        { label: "Sprints", icon: Clock3, href: "#" },
-        { label: "Approvals", icon: BadgeCheck, href: "#" },
-        { label: "Reviews", icon: Star, href: "#" },
-      ],
-    },
-    {
-      title: "Workspace",
-      defaultOpen: false,
-      items: [
-        { label: "Integrations", icon: Globe2, href: "#" },
-        { label: "Automations", icon: Sparkles, href: "#" },
-      ],
+      items: [{ label: "Members", icon: Users, href: "#" }],
     },
   ],
   footerGroup: {
@@ -294,6 +287,14 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
 };
 
 const NavUser = ({ user }: { user: UserData }) => {
+  const navigate = useNavigate();
+  const { signOut } = UserAuth();
+
+  const handleLogout = async () => {
+    signOut();
+    navigate("/signin");
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -332,35 +333,44 @@ const NavUser = ({ user }: { user: UserData }) => {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="size-8 rounded-lg">
-                  <AvatarImage
-                    src={user.avatar}
-                    alt={user.name}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    {user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="size-8 rounded-lg">
+                    <AvatarImage
+                      src={user.avatar}
+                      alt={user.name}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuLabel>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigate("/account")}
+              className="hover:cursor-pointer"
+            >
               <User className="mr-2 size-4" />
               Account
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleLogout()}
+              className="hover:cursor-pointer"
+            >
               <LogOut className="mr-2 size-4" />
               Log out
             </DropdownMenuItem>

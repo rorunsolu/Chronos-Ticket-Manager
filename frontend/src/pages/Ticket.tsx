@@ -1,11 +1,15 @@
 import { UserAuth } from "@/context/AuthContext";
 import { type Ticket, type TicketComment } from "@/common/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
 
 const Ticket = () => {
   const { session } = UserAuth();
   const { id } = useParams<Pick<Ticket, "id">>();
+  const [message, setMessage] = useState("");
+
+  const queryClient = useQueryClient();
 
   // Display ticket details
   // Limit edit access based on roles/owner/creator
@@ -28,6 +32,23 @@ const Ticket = () => {
     return response.json();
   };
 
+  const createTicketComment = async () => {
+    const response = await fetch(`/api/tickets/${id}/comments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create ticket comment");
+    }
+  };
+
   const fetchTicketComments = async () => {
     const response = await fetch(`/api/tickets/${id}/comments`, {
       headers: {
@@ -41,6 +62,16 @@ const Ticket = () => {
 
     return response.json();
   };
+
+  const mutation = useMutation({
+    mutationFn: createTicketComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ticketComments", id],
+      });
+      setMessage("");
+    },
+  });
 
   const {
     data: ticketInfo,
@@ -72,11 +103,11 @@ const Ticket = () => {
       <div className="flex flex-col gap-2">TICKET PAGE</div>
       <div>
         <h3>Ticket Details</h3>
-        <div className="flex flex-col gap-2">
+        <article className="flex flex-col gap-2  bg-amber-400">
           <p>{ticketInfo.title}</p>
           <p>{ticketInfo.description}</p>
           <p>{ticketInfo.priority}</p>
-        </div>
+        </article>
       </div>
       <div>
         <h4>Ticket Comments</h4>
@@ -95,6 +126,29 @@ const Ticket = () => {
             ))
           )}
         </div>
+      </div>
+      <div className="flex flex-col">
+        <h4>Add Comment</h4>
+        <form
+          className="flex flex-col gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            mutation.mutate();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Comment"
+            onChange={(e) => setMessage(e.target.value)}
+            value={message}
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
+          >
+            Submit
+          </button>
+        </form>
       </div>
     </div>
   );

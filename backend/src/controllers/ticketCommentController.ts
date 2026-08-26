@@ -31,3 +31,23 @@ export async function createTicketComment(req: AuthedRequest, res: Response) {
     });
   }
 }
+
+export async function getTicketComments(req: AuthedRequest, res: Response) {
+  try {
+    const { ticketId } = req.params;
+
+    const result = await supabasePool.query(
+      `
+        SELECT *
+        FROM public.ticket_comments
+        WHERE ticket_id = $1
+        ORDER BY created_at DESC
+      `,
+      [ticketId],
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+}

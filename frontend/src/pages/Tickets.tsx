@@ -2,10 +2,12 @@ import { UserAuth } from "@/context/AuthContext";
 import { type Ticket } from "@/common/types";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const Tickets = () => {
   const { session } = UserAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -75,14 +77,21 @@ const Tickets = () => {
 
   return (
     <div>
-      <h1>Tickets</h1>
+      <h1 className="mb-4 text-2xl underline">Tickets</h1>
 
       {tickets?.length === 0 ? (
         <p>No tickets yet.</p>
       ) : (
-        <ul>
+        <ul className="flex flex-col gap-2">
           {tickets?.map((ticket) => (
-            <li key={ticket.id}>
+            <li
+              key={ticket.id}
+              onClick={(e) => {
+                navigate(`/ticket/${ticket.id}`);
+                e.stopPropagation();
+              }}
+              className="hover:cursor-pointer bg-green-800 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+            >
               <strong>{ticket.title}</strong> — {ticket.status} /{" "}
               {ticket.priority}
               <p>{ticket.description}</p>

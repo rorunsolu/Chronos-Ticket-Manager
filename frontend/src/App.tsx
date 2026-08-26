@@ -13,6 +13,7 @@ import Home from "@/pages/Home";
 import Landing from "@/pages/Landing";
 import { UserAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
+import Ticket from "./pages/Ticket";
 
 const App = (): FunctionComponent => {
   const { session } = UserAuth();
@@ -38,6 +39,19 @@ const App = (): FunctionComponent => {
         <Route
           path="/signup"
           element={<SignupPage />}
+        />
+
+        <Route
+          path="/ticket/:id"
+          element={
+            session ? (
+              <AuthenticatedLayout>
+                <Ticket />
+              </AuthenticatedLayout>
+            ) : (
+              <Navigate to="/landing" />
+            )
+          }
         />
 
         <Route

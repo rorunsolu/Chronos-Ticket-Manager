@@ -63,3 +63,11 @@ export type Ticket = {
   priority: string;
   created_at: string;
 };
+
+export type TicketComment = {
+  id: string;
+  message: string;
+  created_at: string;
+  user_id: string;
+  ticket_id: string;
+};

@@ -39,7 +39,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Overview",
+      title: "Dashboard",
       url: "/dashboard",
       icon: <LayoutDashboardIcon />,
     },
@@ -49,7 +49,7 @@ const data = {
       icon: <FolderIcon />,
     },
     {
-      title: "Agents",
+      title: "My Account",
       url: "/account",
       icon: <UsersIcon />,
     },

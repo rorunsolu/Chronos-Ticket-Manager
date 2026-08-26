@@ -1,14 +1,12 @@
 import "@/App.css";
-// import { ApplicationShell1 } from "@/components/application-shell1";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/index.css";
 import AccountPage from "@/pages/AccountPage";
-// import Dashboard from "@/pages/Dashboard";
 import Page from "@/app/dashboard/page";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
-import TicketPage from "@/pages/TicketPage";
+import Tickets from "@/pages/Tickets";
 import { Route, Routes } from "react-router-dom";
 import type { FunctionComponent } from "@/common/types";
 import Home from "@/pages/Home";
@@ -73,7 +71,7 @@ const App = (): FunctionComponent => {
           element={
             session ? (
               <AuthenticatedLayout>
-                <TicketPage />
+                <Tickets />
               </AuthenticatedLayout>
             ) : (
               <Navigate to="/landing" />

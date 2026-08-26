@@ -519,6 +519,13 @@ export function DataTable({
             size="sm"
           >
             <PlusIcon />
+            <span className="hidden lg:inline">Add Ticket</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            <PlusIcon />
             <span className="hidden lg:inline">Add Section</span>
           </Button>
         </div>

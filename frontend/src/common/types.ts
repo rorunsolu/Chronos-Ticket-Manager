@@ -54,3 +54,12 @@ export interface AuthContextValue {
 export interface AuthContextProviderProps {
   children: ReactNode;
 }
+
+export type Ticket = {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  created_at: string;
+};

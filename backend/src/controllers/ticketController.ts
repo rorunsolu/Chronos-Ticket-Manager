@@ -72,6 +72,14 @@ export async function updateTicket(req: AuthedRequest, res: Response) {
     const userId = req.user?.sub;
     const { title, description, status, priority } = req.body;
 
+    console.log("updateTicket payload:", {
+      id,
+      title,
+      description,
+      status,
+      priority,
+    });
+
     const result = await supabasePool.query(
       `
         update public.tickets

@@ -4,7 +4,10 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import type { Session } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import {
+  //useEffect,
+  useState,
+} from "react";
 
 type ProfileData = {
   name: string;
@@ -90,15 +93,15 @@ const AccountPage = ({ session }: { session: Session }) => {
     queryFn: getProfile,
   });
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        name: profile.name ?? "",
-        email: profile.email ?? "",
-        role: profile.role ?? "",
-      });
-    }
-  }, [profile]);
+  // useEffect(() => {
+  //   if (profile) {
+  //     setFormData({
+  //       name: profile.name ?? "",
+  //       email: profile.email ?? "",
+  //       role: profile.role ?? "",
+  //     });
+  //   }
+  // }, [profile]);
 
   if (isLoading) {
     return <p>Loading...</p>;

@@ -9,6 +9,10 @@ const Ticket = () => {
   const { id } = useParams<Pick<Ticket, "id">>();
   const [message, setMessage] = useState("");
 
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("medium");
+
   const queryClient = useQueryClient();
 
   // Display ticket details
@@ -30,6 +34,27 @@ const Ticket = () => {
     }
 
     return response.json();
+  };
+
+  const updateTicketInfo = async () => {
+    const response = await fetch(`/api/tickets/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        description,
+        priority,
+      }),
+    });
+
+    // TODO: ADD CHECKS/VALIDATION SO THAT CLICKING UPDATE WHEN NO CHANGES HAVE BEEN MADE TO ANY OF THE FIELDS DOESNT CLEAR THE FIELDS IN THE DB
+
+    if (!response.ok) {
+      throw new Error("Failed to update ticket info");
+    }
   };
 
   const createTicketComment = async () => {
@@ -73,12 +98,21 @@ const Ticket = () => {
     },
   });
 
+  const ticketUpdateMutation = useMutation({
+    mutationFn: updateTicketInfo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ticketInfo", id],
+      });
+    },
+  });
+
   const {
     data: ticketInfo,
     isLoading: ticketLoading,
     error: ticketError,
   } = useQuery({
-    queryKey: ["ticketInfo"],
+    queryKey: ["ticketInfo", id],
     queryFn: fetchTicketInfo,
     enabled: !!session?.access_token && !!id,
   });
@@ -98,16 +132,57 @@ const Ticket = () => {
   if (ticketError) return <p>Error: {ticketError.message}</p>;
   if (commentsError) return <p>Error loading comments</p>;
 
+  const isUnchanged =
+    // FIXME: THIS ISNT HAVING ANY AFFECT
+    title === ticketInfo.title &&
+    description === ticketInfo.description &&
+    priority === ticketInfo.priority;
+
+  // FIXME:  Uncaught TypeError: can't access property "title", ticketInfo is undefined
+
   return (
     <div>
       <div className="flex flex-col gap-2">TICKET PAGE</div>
       <div>
         <h3>Ticket Details</h3>
-        <article className="flex flex-col gap-2  bg-amber-400">
-          <p>{ticketInfo.title}</p>
-          <p>{ticketInfo.description}</p>
-          <p>{ticketInfo.priority}</p>
-        </article>
+        <form
+          className="flex flex-col gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            ticketUpdateMutation.mutate();
+          }}
+        >
+          <input
+            onChange={(e) => setTitle(e.target.value)}
+            defaultValue={ticketInfo.title}
+            className="bg-gray-800"
+          />
+
+          <input
+            onChange={(e) => setDescription(e.target.value)}
+            defaultValue={ticketInfo.description}
+            className="bg-gray-800"
+          />
+          <select
+            defaultValue={ticketInfo.priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="bg-gray-800"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+          <div className="flex justify-end mt-4">
+            <button
+              type="submit"
+              disabled={isUnchanged || ticketUpdateMutation.isPending}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              {ticketUpdateMutation.isPending ? "Updating..." : "Update ticket"}
+            </button>
+          </div>
+        </form>
       </div>
       <div>
         <h4>Ticket Comments</h4>

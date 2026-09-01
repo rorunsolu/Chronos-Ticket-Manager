@@ -2,7 +2,7 @@ import { UserAuth } from "@/context/AuthContext";
 import { type Ticket, type TicketComment } from "@/common/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Ticket = () => {
   const { session } = UserAuth();
@@ -12,6 +12,7 @@ const Ticket = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
+  const [status, setStatus] = useState("open");
 
   const queryClient = useQueryClient();
 
@@ -37,20 +38,23 @@ const Ticket = () => {
   };
 
   const updateTicketInfo = async () => {
+    const payload: Record<string, any> = {};
+
+    if (title !== ticketInfo.title) payload.title = title;
+    if (description !== ticketInfo.description)
+      payload.description = description;
+    if (priority !== ticketInfo.priority) payload.priority = priority;
+    if (status !== ticketInfo.status) payload.status = status;
+    if (Object.keys(payload).length === 0) return;
+
     const response = await fetch(`/api/tickets/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${session?.access_token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title,
-        description,
-        priority,
-      }),
+      body: JSON.stringify(payload),
     });
-
-    // TODO: ADD CHECKS/VALIDATION SO THAT CLICKING UPDATE WHEN NO CHANGES HAVE BEEN MADE TO ANY OF THE FIELDS DOESNT CLEAR THE FIELDS IN THE DB
 
     if (!response.ok) {
       throw new Error("Failed to update ticket info");
@@ -127,18 +131,24 @@ const Ticket = () => {
     enabled: !!session?.access_token && !!id,
   });
 
-  if (!session) return <div>Please sign in</div>;
+  useEffect(() => {
+    if (ticketInfo) {
+      setTitle(ticketInfo.title);
+      setDescription(ticketInfo.description);
+      setPriority(ticketInfo.priority);
+      setStatus(ticketInfo.status);
+    }
+  }, [ticketInfo]);
+
   if (ticketLoading || commentsLoading) return <p>Loading...</p>;
   if (ticketError) return <p>Error: {ticketError.message}</p>;
-  if (commentsError) return <p>Error loading comments</p>;
 
   const isUnchanged =
     // FIXME: THIS ISNT HAVING ANY AFFECT
     title === ticketInfo.title &&
     description === ticketInfo.description &&
-    priority === ticketInfo.priority;
-
-  // FIXME:  Uncaught TypeError: can't access property "title", ticketInfo is undefined
+    priority === ticketInfo.priority &&
+    status === ticketInfo.status;
 
   return (
     <div>
@@ -154,17 +164,17 @@ const Ticket = () => {
         >
           <input
             onChange={(e) => setTitle(e.target.value)}
-            defaultValue={ticketInfo.title}
+            value={title}
             className="bg-gray-800"
           />
 
           <input
             onChange={(e) => setDescription(e.target.value)}
-            defaultValue={ticketInfo.description}
+            value={description}
             className="bg-gray-800"
           />
           <select
-            defaultValue={ticketInfo.priority}
+            value={priority}
             onChange={(e) => setPriority(e.target.value)}
             className="bg-gray-800"
           >
@@ -173,6 +183,18 @@ const Ticket = () => {
             <option value="high">High</option>
             <option value="urgent">Urgent</option>
           </select>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="bg-gray-800"
+          >
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="pending">Pending</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+
           <div className="flex justify-end mt-4">
             <button
               type="submit"
@@ -184,23 +206,43 @@ const Ticket = () => {
           </div>
         </form>
       </div>
+      <div className="flex flex-col gap-2 ">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit">
+          Resolve Ticket
+        </button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit">
+          Close Ticket
+        </button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit">
+          Delete Ticket
+        </button>
+      </div>
       <div>
         <h4>Ticket Comments</h4>
-        <div className="flex flex-col gap-2">
-          {comments?.length === 0 ? (
-            <p>No comments yet</p>
-          ) : (
-            (comments ?? []).map((comment: TicketComment) => (
-              <article
-                key={comment.id}
-                className="flex flex-col gap-2 bg-amber-600 "
-              >
-                <p>{comment.message}</p>
-                <p>{comment.created_at}</p>
-              </article>
-            ))
-          )}
-        </div>
+        {commentsError && (
+          <div className="flex flex-col gap-2">
+            <p>Error loading comments</p>
+          </div>
+        )}
+        {comments?.length === 0 ? (
+          <p>No comments yet</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {comments?.length === 0 ? (
+              <p>No comments yet</p>
+            ) : (
+              (comments ?? []).map((comment: TicketComment) => (
+                <article
+                  key={comment.id}
+                  className="flex flex-col gap-2 bg-amber-600 "
+                >
+                  <p>{comment.message}</p>
+                  <p>{comment.created_at}</p>
+                </article>
+              ))
+            )}
+          </div>
+        )}
       </div>
       <div className="flex flex-col">
         <h4>Add Comment</h4>

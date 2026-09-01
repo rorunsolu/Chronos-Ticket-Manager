@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { UserAuth } from "@/context/AuthContext";
 
 const Home = () => {
-  const { session } = UserAuth();
   const navigate = useNavigate();
 
   return (
@@ -20,30 +18,6 @@ const Home = () => {
       >
         Signup
       </a>
-      {session && (
-        <a
-          className="hover:underline hover:cursor-pointer"
-          onClick={() => navigate("/dashboard")}
-        >
-          Dashboard
-        </a>
-      )}
-      {session && (
-        <a
-          className="hover:underline hover:cursor-pointer"
-          onClick={() => navigate("/ticket")}
-        >
-          Ticket
-        </a>
-      )}
-      {session && (
-        <a
-          className="hover:underline hover:cursor-pointer"
-          onClick={() => navigate("/account")}
-        >
-          Account
-        </a>
-      )}
     </div>
   );
 };

@@ -29,10 +29,6 @@ const App = (): FunctionComponent => {
           element={<Landing />}
         />
         <Route
-          path="/"
-          element={<Home />}
-        />
-        <Route
           path="/signin"
           element={<LoginPage />}
         />
@@ -47,6 +43,19 @@ const App = (): FunctionComponent => {
             session ? (
               <AuthenticatedLayout>
                 <Ticket />
+              </AuthenticatedLayout>
+            ) : (
+              <Navigate to="/landing" />
+            )
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            session ? (
+              <AuthenticatedLayout>
+                <Home />
               </AuthenticatedLayout>
             ) : (
               <Navigate to="/landing" />

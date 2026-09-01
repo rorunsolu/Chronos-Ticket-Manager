@@ -12,7 +12,7 @@ import {
 type ProfileData = {
   name: string;
   email: string;
-  role: string;
+  permLevel: string;
 };
 
 const AccountPage = ({ session }: { session: Session }) => {
@@ -20,7 +20,7 @@ const AccountPage = ({ session }: { session: Session }) => {
   const [formData, setFormData] = useState<ProfileData>({
     name: "",
     email: "",
-    role: "",
+    permLevel: "",
   });
 
   const queryClient = useQueryClient();
@@ -70,7 +70,7 @@ const AccountPage = ({ session }: { session: Session }) => {
       setFormData({
         name: profile?.name,
         email: profile?.email,
-        role: profile?.role,
+        permLevel: profile?.perm_level,
       });
       console.log("Profile updated successfully");
     },
@@ -92,16 +92,6 @@ const AccountPage = ({ session }: { session: Session }) => {
     queryKey: ["profile"],
     queryFn: getProfile,
   });
-
-  // useEffect(() => {
-  //   if (profile) {
-  //     setFormData({
-  //       name: profile.name ?? "",
-  //       email: profile.email ?? "",
-  //       role: profile.role ?? "",
-  //     });
-  //   }
-  // }, [profile]);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -172,17 +162,17 @@ const AccountPage = ({ session }: { session: Session }) => {
 
               <div className="col-span-full sm:col-span-3">
                 <Field className="gap-2">
-                  <FieldLabel htmlFor="role">Role</FieldLabel>
+                  <FieldLabel htmlFor="permLevel">Permission level</FieldLabel>
                   <Input
                     disabled
-                    id="role"
-                    name="role"
+                    id="permLevel"
+                    name="permLevel"
                     //placeholder="Senior Manager"
                     type="text"
-                    value={formData.role}
+                    value={formData.permLevel}
                   />
                   <FieldDescription>
-                    Roles can only be changed by system admin.
+                    Permission level can only be changed by system admin.
                   </FieldDescription>
                 </Field>
               </div>

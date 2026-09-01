@@ -12,7 +12,6 @@ const Tickets = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
-  // MUST BE LEFT AS MED BY DEFAULT ACCORDING TO THE SCHEMA
 
   const createTicket = async () => {
     const response = await fetch("/api/tickets", {
@@ -125,6 +124,7 @@ const Tickets = () => {
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
+            className="bg-gray-800"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -135,8 +135,12 @@ const Tickets = () => {
           <div className="flex justify-end mt-4">
             <button
               type="submit"
-              disabled={mutation.isPending}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              disabled={mutation.isPending || !title || !description}
+              className={`font-bold py-2 px-4 rounded text-white ${
+                mutation.isPending || !title || !description
+                  ? "bg-gray-500"
+                  : "bg-blue-500 hover:bg-blue-700"
+              }`}
             >
               {mutation.isPending ? "Creating..." : "Create ticket"}
             </button>

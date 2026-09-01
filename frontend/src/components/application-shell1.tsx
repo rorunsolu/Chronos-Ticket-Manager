@@ -78,7 +78,6 @@ import { cn } from "@/lib/utils";
  */
 
 // TODO: Replace hardcoded user data with the authenticated user from UserAuth()
-// FIXME: GDGD hg
 
 type NavItem = {
   label: string;

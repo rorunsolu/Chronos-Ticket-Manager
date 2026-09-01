@@ -4,7 +4,7 @@ import { AuthedRequest } from "../middleware/authMw";
 
 export async function createTicketComment(req: AuthedRequest, res: Response) {
   try {
-    const userId = req.user?.sub;
+    const createdBy = req.user?.sub;
     const { ticketId } = req.params;
     const { message } = req.body;
 
@@ -16,11 +16,11 @@ export async function createTicketComment(req: AuthedRequest, res: Response) {
 
     const result = await supabasePool.query(
       `
-        INSERT INTO public.ticket_comments (ticket_id, user_id, message)
+        INSERT INTO public.ticket_comments (ticket_id, created_by, message)
         VALUES ($1, $2, $3)
         RETURNING *
       `,
-      [ticketId, userId, message],
+      [ticketId, createdBy, message],
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {

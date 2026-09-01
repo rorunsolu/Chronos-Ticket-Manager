@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from "jose";
+import { supabasePool } from "../db";
 
 const JWKS_URL = `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
@@ -35,7 +36,12 @@ export const requireAuth = async (
       issuer: `${process.env.SUPABASE_URL}/auth/v1`,
       audience: "authenticated",
     });
-    req.user = payload;
+
+    const { rows } = await supabasePool.query(
+      `select perm_level from public.users where id = $1`,
+      [payload.sub],
+    );
+    req.user = { ...payload, appRole: rows[0]?.perm_level };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid or expired token" });

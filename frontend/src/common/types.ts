@@ -59,15 +59,36 @@ export type Ticket = {
   id: string;
   title: string;
   description: string;
-  status: string;
-  priority: string;
+
+  status: TicketStatus;
+  priority: TicketPriority;
+
+  assigned_to: string | null;
+
+  created_by: string;
   created_at: string;
+  updated_at: string;
+
+  sla_policy_id: string | null;
+
+  first_responded_at: string | null;
+  response_due_at: string | null;
+  resolution_due_at: string | null;
 };
+
+export type TicketStatus =
+  | "open"
+  | "in_progress"
+  | "pending"
+  | "resolved"
+  | "closed";
+
+export type TicketPriority = "low" | "medium" | "high" | "urgent";
 
 export type TicketComment = {
   id: string;
   message: string;
   created_at: string;
-  user_id: string;
-  ticket_id: string;
+  created_by: string;
+  ticket_id: string; //FIXME do i even need this
 };

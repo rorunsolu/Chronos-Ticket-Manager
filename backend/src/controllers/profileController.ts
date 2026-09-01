@@ -27,7 +27,7 @@ export async function updateProfile(req: AuthedRequest, res: Response) {
   try {
     const userId = req.user?.sub;
 
-    const { name, role } = req.body;
+    const { name, permLevel } = req.body;
 
     const result = await supabasePool.query(
       `
@@ -35,14 +35,14 @@ export async function updateProfile(req: AuthedRequest, res: Response) {
       
       SET 
         name = $1,
-        role = $2,
+        perm_level = $2,
         updated_at = NOW()
 
       WHERE id = $3
 
       RETURNING *
       `,
-      [name, role, userId],
+      [name, permLevel, userId],
     );
 
     res.json(result.rows[0]);

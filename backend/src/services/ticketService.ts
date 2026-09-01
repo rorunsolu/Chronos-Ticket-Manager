@@ -87,7 +87,7 @@ export async function getTicketById(id: string, createdById: string) {
     [id, createdById],
   );
   return result.rows[0];
-}
+} // FIXME: This technically only gets tickets for the logged in user not all tickets in general
 
 export async function updateTicket(
   id: string,

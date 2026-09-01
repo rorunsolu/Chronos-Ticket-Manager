@@ -1,53 +1,41 @@
 import { Response } from "express";
-import { supabasePool } from "../db";
 import { AuthedRequest } from "../middleware/authMw";
+import { type TicketComment } from "../services/ticketCommentService";
+import * as ticketCommentService from "../services/ticketCommentService";
+import { cp } from "fs";
 
-export async function createTicketComment(req: AuthedRequest, res: Response) {
+export async function createComment(req: AuthedRequest, res: Response) {
   try {
-    const createdBy = req.user?.sub;
-    const { ticketId } = req.params;
-    const { message } = req.body;
+    const createdById = req.user?.sub as string;
+    const message = req.body.message;
 
-    console.log("comment payload:", { ticketId, message, body: req.body });
-
-    if (!message || !message.trim()) {
-      return res.status(400).json({ message: "Message is required" });
-    }
-
-    const result = await supabasePool.query(
-      `
-        INSERT INTO public.ticket_comments (ticket_id, created_by, message)
-        VALUES ($1, $2, $3)
-        RETURNING *
-      `,
-      [ticketId, createdBy, message],
+    const comment = await ticketCommentService.createComment(
+      createdById,
+      message,
     );
-    res.status(201).json(result.rows[0]);
+    console.log("Comment created:", comment);
+    res.status(201).json(comment);
   } catch (error) {
-    console.error("Error creating ticket comment:", error);
-    res.status(500).json({
-      message: "Server error",
-      detail: error instanceof Error ? error.message : String(error),
-    });
+    console.log("Error creating comment:", error);
+    res.status(500).json({ message: "Server error" });
   }
 }
 
 export async function getTicketComments(req: AuthedRequest, res: Response) {
   try {
-    const { ticketId } = req.params;
+    const { ticketId } = req.params as { ticketId: string };
 
-    const result = await supabasePool.query(
-      `
-        SELECT *
-        FROM public.ticket_comments
-        WHERE ticket_id = $1
-        ORDER BY created_at DESC
-      `,
-      [ticketId],
-    );
+    if (!ticketId) {
+      return res
+        .status(400)
+        .json({ message: "Ticket ID is required to get comments" });
+    }
 
-    res.json(result.rows);
+    const comments = await ticketCommentService.getCommentsByTicketId(ticketId);
+
+    res.json(comments);
   } catch (error) {
+    console.error("Error getting ticket comments:", error);
     res.status(500).json({ message: "Server error" });
   }
 }

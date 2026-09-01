@@ -1,13 +1,13 @@
 import express from "express";
 import {
-  createTicketComment,
+  createComment,
   getTicketComments,
 } from "../controllers/ticketCommentController";
 import { requireAuth } from "../middleware/authMw";
 
 const router = express.Router();
 
-router.post("/:ticketId/comments", requireAuth, createTicketComment);
+router.post("/:ticketId/comments", requireAuth, createComment);
 router.get("/:ticketId/comments", requireAuth, getTicketComments);
 
 export default router;

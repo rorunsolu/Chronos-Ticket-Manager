@@ -11,7 +11,7 @@ export async function getTickets(req: AuthedRequest, res: Response) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-}
+} // FIXME: This technically only gets tickets for the logged in user not all tickets in general
 
 export async function createTicket(req: AuthedRequest, res: Response) {
   try {

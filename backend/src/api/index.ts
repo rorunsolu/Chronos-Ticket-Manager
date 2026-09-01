@@ -4,6 +4,7 @@ import profileRoutes from "../routes/profileRoutes";
 import ticketRoutes from "../routes/ticketRoutes";
 import protectedRoutes from "../routes/protected";
 import ticketCommentRoutes from "../routes/ticketCommentRoutes";
+import ticketHistoryRoutes from "../routes/ticketHistoryRoutes";
 
 const app = express();
 const PORT = 8000;
@@ -28,6 +29,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/tickets", ticketCommentRoutes);
+app.use("/api/tickets", ticketHistoryRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:" + PORT);

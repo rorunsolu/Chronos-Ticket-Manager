@@ -2,7 +2,7 @@ import "@/App.css";
 import AuthenticatedLayout from "@/components/AuthenticatedLayout";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/index.css";
-import AccountPage from "@/pages/AccountPage";
+import Account from "@/pages/Account";
 import Page from "@/app/dashboard/page";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
@@ -81,7 +81,7 @@ const App = (): FunctionComponent => {
           element={
             session ? (
               <AuthenticatedLayout>
-                <AccountPage session={session} />
+                <Account session={session} />
               </AuthenticatedLayout>
             ) : (
               <Navigate to="/landing" />

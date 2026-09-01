@@ -136,6 +136,6 @@ export function canCLoseTicket(
   return (
     user.appRole === "admin" ||
     user.appRole === "agent" ||
-    user.sub === ticket.created_by
+    user.sub === ticket.created_by // this needn't be changed since the only "end-user" that can close a tiocket is the end-user that owns/created it
   );
 }

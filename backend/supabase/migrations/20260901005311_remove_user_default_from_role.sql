@@ -1,0 +1,2 @@
+ALTER TABLE public.users
+ALTER COLUMN perm_level DROP DEFAULT;

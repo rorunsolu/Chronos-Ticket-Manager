@@ -1,0 +1,1 @@
+CREATE TYPE perm_level AS ENUM ('user', 'agent', 'admin')

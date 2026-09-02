@@ -196,6 +196,7 @@ const Ticket = () => {
       });
       historyMutation.mutate({
         actionType: "commented",
+        changedFields: { message },
       });
       setMessage("");
     },
@@ -242,6 +243,10 @@ const Ticket = () => {
       setHistory(ticketHistory);
     }
   }, [ticketInfo, ticketHistory]);
+
+  // FIXME: Updating the prio does not set action type to priority_changed
+  // FIXME: Do i even need this to happen? The history tree can just use the json from changed_fields to manipulate the data shown in the UI?
+  // FIXMED: History cards not displaying correct info
 
   if (ticketLoading || commentsLoading) return <p>Loading...</p>;
   if (ticketError) return <p>Error: {ticketError.message}</p>;

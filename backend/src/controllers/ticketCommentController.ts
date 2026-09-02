@@ -2,17 +2,22 @@ import { Response } from "express";
 import { AuthedRequest } from "../middleware/authMw";
 import { type TicketComment } from "../services/ticketCommentService";
 import * as ticketCommentService from "../services/ticketCommentService";
-import { cp } from "fs";
 
 export async function createComment(req: AuthedRequest, res: Response) {
   try {
     const createdById = req.user?.sub as string;
-    const message = req.body.message;
+    const message = req.body.message as string;
+    const { ticketId } = req.params as { ticketId: string };
 
-    const comment = await ticketCommentService.createComment(
-      createdById,
-      message,
-    );
+    if (!ticketId) {
+      return res
+        .status(400)
+        .json({ message: "Ticket ID is required to create comment" });
+    }
+
+    const data = { message, ticketId };
+
+    const comment = await ticketCommentService.createComment(createdById, data);
     console.log("Comment created:", comment);
     res.status(201).json(comment);
   } catch (error) {

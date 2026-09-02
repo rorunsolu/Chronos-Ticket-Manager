@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { UserAuth } from "@/context/AuthContext";
+import { UserAuth } from "@/context/AuthContext"; // FIXME: IDK
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { ReactNode } from "react";

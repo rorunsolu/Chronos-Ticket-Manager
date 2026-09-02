@@ -1,5 +1,9 @@
 import { UserAuth } from "@/context/AuthContext";
-import { type Ticket, type TicketComment } from "@/common/types";
+import {
+  type Ticket,
+  type TicketComment,
+  type TicketHistoryEntry,
+} from "@/common/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -18,7 +22,7 @@ const Ticket = () => {
   const { id } = useParams<Pick<Ticket, "id">>();
 
   const [message, setMessage] = useState("");
-  const [history, setHistory] = useState<[]>([]);
+  const [history, setHistory] = useState<TicketHistoryEntry[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("medium");
@@ -261,8 +265,7 @@ const Ticket = () => {
 
   return (
     <div>
-      <div className="flex flex-col gap-2">TICKET PAGE</div>
-      <div>
+      <div className="flex flex-col gap-2 border border-gray-300 rounded-sm p-3">
         <h3>Ticket Details</h3>
         <form
           className="flex flex-col gap-2"
@@ -274,18 +277,18 @@ const Ticket = () => {
           <input
             onChange={(e) => setTitle(e.target.value)}
             value={title}
-            className="bg-gray-800"
+            className="border border-gray-300 rounded-sm p-2"
           />
 
           <input
             onChange={(e) => setDescription(e.target.value)}
             value={description}
-            className="bg-gray-800"
+            className="border border-gray-300 rounded-sm p-2"
           />
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="bg-gray-800"
+            className="border border-gray-300 rounded-sm p-2 max-w-32"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -295,7 +298,7 @@ const Ticket = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="bg-gray-800"
+            className="border border-gray-300 rounded-sm p-2 max-w-32"
           >
             <option value="open">Open</option>
             <option value="in_progress">In Progress</option>
@@ -315,7 +318,9 @@ const Ticket = () => {
           </div>
         </form>
       </div>
-      <div className="flex flex-col gap-2 ">
+
+      {/* TODO: Modal: each button locked behind appropriate perm levels */}
+      {/* <div className="flex flex-col gap-2 ">
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit">
           Resolve Ticket
         </button>
@@ -325,8 +330,9 @@ const Ticket = () => {
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit">
           Delete Ticket
         </button>
-      </div>
-      <div className="flex flex-col bg-blue-500 hover:bg-blue-700 text-white mt-3">
+      </div> */}
+
+      <div className="flex flex-col mt-3 border border-gray-300 rounded-sm p-3">
         {commentsError && (
           <div className="flex flex-col gap-2">
             <p>Error loading comments</p>
@@ -342,7 +348,7 @@ const Ticket = () => {
               (comments ?? []).map((comment: TicketComment) => (
                 <article
                   key={comment.id}
-                  className="flex flex-col gap-2 bg-amber-600 "
+                  className="flex flex-col gap-2 border border-gray-300  rounded-sm p-3"
                 >
                   <p>{comment.message}</p>
                   <p>{comment.created_at}</p>
@@ -364,19 +370,22 @@ const Ticket = () => {
               placeholder="Comment"
               onChange={(e) => setMessage(e.target.value)}
               value={message}
+              className="mt-2 border border-gray-300 rounded-sm p-2"
             />
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
-            >
-              Submit
-            </button>
+            <div className="flex justify-end mt-3">
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
+              >
+                Submit
+              </button>
+            </div>
           </form>
         </div>
       </div>
 
-      <div className="flex flex-col bg-blue-500 hover:bg-blue-700 text-white mt-3">
-        <h4>History</h4>
+      <div className="flex flex-col mt-3 border border-gray-300 rounded-sm p-3">
+        <h4 className="font-bold mb-2">History</h4>
         <div className="flex flex-col gap-2">
           {historyError && (
             <div className="flex flex-col gap-2">
@@ -384,25 +393,24 @@ const Ticket = () => {
             </div>
           )}
 
-          {history?.length === 0 ? (
-            <p>No history yet</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {history?.length === 0 ? (
-                <p>No history yet</p>
-              ) : (
-                (history ?? []).map((comment: TicketComment) => (
-                  <article
-                    key={comment.id}
-                    className="flex flex-col gap-2 bg-amber-600 "
-                  >
-                    <p>{comment.message}</p>
-                    <p>{comment.created_at}</p>
-                  </article>
-                ))
-              )}
-            </div>
-          )}
+          <div className="flex flex-col gap-2">
+            {history?.length === 0 ? (
+              <p>No history yet</p>
+            ) : (
+              (history ?? []).map((entry: TicketHistoryEntry) => (
+                // TODO: Clicking on the author's name should take you to their profile
+                // TODO: Date should use the "days ago" format
+                <article
+                  key={entry.id}
+                  className="flex flex-col gap-2 border border-gray-300 rounded-sm p-3"
+                >
+                  <p>{entry.actor_name}</p>
+                  <p>{entry.action_type}</p>
+                  <p>{entry.created_at}</p>
+                </article>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

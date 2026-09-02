@@ -92,3 +92,26 @@ export type TicketComment = {
   created_by: string;
   ticket_id: string; //FIXME do i even need this
 };
+
+export type TicketHistoryEntry = {
+  // maybe have a page on the account page where u can see your history of actions?
+  id: string;
+  ticket_id: string;
+  actor_id: string;
+  actor_name: string;
+  actor_perm_level: string;
+  action_type: ticketHistoryAction;
+  created_at: string;
+  changed_fields: Record<string, unknown> | null;
+};
+
+export type ticketHistoryAction =
+  | "created"
+  | "updated"
+  | "assigned"
+  | "unassigned"
+  | "status_changed"
+  | "priority_changed"
+  | "commented"
+  | "closed"
+  | "reopened";
